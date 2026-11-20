@@ -1,0 +1,28 @@
+# Perfil de test: BD en memoria, sin dependencias externas.
+spring:
+  datasource:
+    url: jdbc:h2:mem:panel;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  # H2 no entiende todo el SQL de PostgreSQL: en tests el esquema lo crea Hibernate
+  flyway:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  devtools:
+    restart:
+      enabled: false
+
+panel:
+  agenda:
+    calendarios:
+      - nombre: Familia
+        url: https://calendario.test/familia.ics
+        color: '#FF5A36'
+
+  fitcina:
+    url: http://fitcina.test
+    email: jorge@casa.test
+    password: secreto

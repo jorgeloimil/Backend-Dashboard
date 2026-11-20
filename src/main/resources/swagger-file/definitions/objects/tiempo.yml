@@ -1,0 +1,109 @@
+# Tiempo (Open-Meteo). `codigo` es el código WMO del estado del cielo; el
+# frontend elige el icono con él y `descripcion` ya viene en español.
+
+Tiempo:
+  type: object
+  required: [ubicacion, actualizadoEn, actual, horas, dias]
+  properties:
+    ubicacion:
+      type: string
+      example: Madrid
+    actualizadoEn:
+      type: string
+      format: date-time
+      description: Cuándo se pidieron los datos a Open-Meteo.
+    actual:
+      $ref: './tiempo.yml#/TiempoActual'
+    horas:
+      description: Las próximas 12 horas, empezando por la actual.
+      type: array
+      items:
+        $ref: './tiempo.yml#/TiempoHora'
+    dias:
+      description: Hoy y los próximos 5 días.
+      type: array
+      items:
+        $ref: './tiempo.yml#/TiempoDia'
+
+TiempoActual:
+  type: object
+  required: [temperatura, sensacion, humedad, viento, codigo, descripcion, esDeDia]
+  properties:
+    temperatura:
+      type: number
+      format: double
+      description: Grados Celsius.
+    sensacion:
+      type: number
+      format: double
+    humedad:
+      type: integer
+      format: int32
+      description: Porcentaje.
+    viento:
+      type: number
+      format: double
+      description: km/h.
+    codigo:
+      type: integer
+      format: int32
+    descripcion:
+      type: string
+      example: Parcialmente nublado
+    esDeDia:
+      type: boolean
+
+TiempoHora:
+  type: object
+  required: [hora, temperatura, codigo, probPrecipitacion]
+  properties:
+    hora:
+      type: string
+      format: date-time
+    temperatura:
+      type: number
+      format: double
+    codigo:
+      type: integer
+      format: int32
+    probPrecipitacion:
+      type: integer
+      format: int32
+
+TiempoDia:
+  type: object
+  required: [fecha, maxima, minima, codigo, descripcion, probPrecipitacion]
+  properties:
+    fecha:
+      type: string
+      format: date
+    maxima:
+      type: number
+      format: double
+    minima:
+      type: number
+      format: double
+    codigo:
+      type: integer
+      format: int32
+    descripcion:
+      type: string
+    probPrecipitacion:
+      type: integer
+      format: int32
+    amanecer:
+      type: string
+      format: date-time
+      nullable: true
+    atardecer:
+      type: string
+      format: date-time
+      nullable: true
+
+ApiResponseTiempo:
+  allOf:
+    - $ref: './common.yml#/ApiResponseBase'
+    - type: object
+      properties:
+        data:
+          $ref: './tiempo.yml#/Tiempo'
