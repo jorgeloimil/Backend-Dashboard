@@ -1,0 +1,72 @@
+# Agenda: eventos de los calendarios iCal configurados.
+
+Agenda:
+  type: object
+  required: [desde, hasta, eventos, calendarios]
+  properties:
+    desde:
+      type: string
+      format: date
+    hasta:
+      type: string
+      format: date
+      description: Último día incluido.
+    eventos:
+      type: array
+      items:
+        $ref: './agenda.yml#/EventoAgenda'
+    calendarios:
+      type: array
+      items:
+        $ref: './agenda.yml#/CalendarioAgenda'
+
+EventoAgenda:
+  type: object
+  required: [titulo, inicio, fin, todoElDia, calendario, color]
+  properties:
+    titulo:
+      type: string
+      example: Dentista
+    inicio:
+      type: string
+      format: date-time
+      description: En los eventos de todo el día, la medianoche de su primer día (hora de casa).
+    fin:
+      type: string
+      format: date-time
+      description: Exclusivo. En los de todo el día, la medianoche del día siguiente al último.
+    todoElDia:
+      type: boolean
+    ubicacion:
+      type: string
+      nullable: true
+    calendario:
+      type: string
+      example: Familia
+    color:
+      type: string
+      description: Color del calendario en hexadecimal.
+      example: '#FF5A36'
+
+CalendarioAgenda:
+  type: object
+  required: [nombre, color, ok]
+  properties:
+    nombre:
+      type: string
+    color:
+      type: string
+    ok:
+      type: boolean
+      description: false si no se pudo descargar o leer en la última consulta.
+    error:
+      type: string
+      nullable: true
+
+ApiResponseAgenda:
+  allOf:
+    - $ref: './common.yml#/ApiResponseBase'
+    - type: object
+      properties:
+        data:
+          $ref: './agenda.yml#/Agenda'

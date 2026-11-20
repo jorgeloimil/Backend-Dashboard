@@ -1,0 +1,94 @@
+# Lista de la compra compartida.
+
+CategoriaCompra:
+  description: Pasillo del súper, para agrupar la lista en el orden en que se recorre.
+  type: string
+  enum:
+    - FRUTA_VERDURA
+    - CARNE_PESCADO
+    - LACTEOS_HUEVOS
+    - PANADERIA
+    - DESPENSA
+    - CONGELADOS
+    - BEBIDAS
+    - LIMPIEZA
+    - HIGIENE
+    - OTROS
+
+ArticuloCompra:
+  type: object
+  required: [id, nombre, categoria, comprado, creadoEn]
+  properties:
+    id:
+      type: integer
+      format: int64
+    nombre:
+      type: string
+      example: Leche semidesnatada
+    cantidad:
+      type: string
+      nullable: true
+      description: Texto libre ("2", "1 kg", "un paquete").
+      example: 6 bricks
+    categoria:
+      $ref: './compra.yml#/CategoriaCompra'
+    comprado:
+      type: boolean
+    creadoEn:
+      type: string
+      format: date-time
+    compradoEn:
+      type: string
+      format: date-time
+      nullable: true
+
+ArticuloCompraRequest:
+  type: object
+  required: [nombre]
+  properties:
+    nombre:
+      type: string
+      minLength: 1
+      maxLength: 80
+      pattern: '.*\S.*'
+    cantidad:
+      type: string
+      maxLength: 30
+    categoria:
+      $ref: './compra.yml#/CategoriaCompra'
+
+ArticuloCompraUpdate:
+  description: Solo cambian los campos presentes.
+  type: object
+  properties:
+    nombre:
+      type: string
+      minLength: 1
+      maxLength: 80
+      pattern: '.*\S.*'
+    cantidad:
+      type: string
+      maxLength: 30
+      description: Vacío borra la cantidad.
+    categoria:
+      $ref: './compra.yml#/CategoriaCompra'
+    comprado:
+      type: boolean
+
+ApiResponseArticuloCompra:
+  allOf:
+    - $ref: './common.yml#/ApiResponseBase'
+    - type: object
+      properties:
+        data:
+          $ref: './compra.yml#/ArticuloCompra'
+
+ApiResponseArticuloCompraList:
+  allOf:
+    - $ref: './common.yml#/ApiResponseBase'
+    - type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: './compra.yml#/ArticuloCompra'
