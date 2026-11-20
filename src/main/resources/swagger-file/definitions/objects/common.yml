@@ -1,0 +1,13 @@
+# Objetos transversales.
+
+# OpenAPI no tiene genéricos: el ApiResponse<T> se materializa en un schema
+# concreto por cada tipo de `data`, todos con esta base.
+ApiResponseBase:
+  type: object
+  required: [success]
+  properties:
+    success:
+      type: boolean
+    message:
+      type: string
+      example: Operación exitosa

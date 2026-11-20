@@ -1,0 +1,18 @@
+{
+  "current": {"time": "2026-11-20T13:00", "temperature_2m": 11.4, "apparent_temperature": 9.8, "relative_humidity_2m": 63, "is_day": 1, "weather_code": 2, "wind_speed_10m": 14.2},
+  "hourly": {
+    "time": ["2026-11-20T11:00","2026-11-20T12:00","2026-11-20T13:00","2026-11-20T14:00","2026-11-20T15:00"],
+    "temperature_2m": [10.0, 10.8, 11.4, 12.1, 12.5],
+    "precipitation_probability": [0, 0, 5, 10, 40],
+    "weather_code": [1, 2, 2, 3, 61]
+  },
+  "daily": {
+    "time": ["2026-11-19","2026-11-20","2026-11-21"],
+    "weather_code": [0, 2, 61],
+    "temperature_2m_max": [13.0, 12.5, 10.1],
+    "temperature_2m_min": [3.0, 4.2, 5.5],
+    "precipitation_probability_max": [0, 40, 80],
+    "sunrise": ["2026-11-19T07:56","2026-11-20T07:57","2026-11-21T07:58"],
+    "sunset": ["2026-11-19T17:55","2026-11-20T17:54","2026-11-21T17:53"]
+  }
+}

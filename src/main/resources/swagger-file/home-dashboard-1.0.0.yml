@@ -1,0 +1,215 @@
+openapi: 3.0.3
+
+# =============================================================================
+#  Contrato de la API del panel de casa — fuente de verdad.
+#
+#  Las interfaces, los @RestController y los modelos de
+#  `com.homedashboard.{api,dtos}` se generan desde aquí en `generate-sources`
+#  y NO se editan a mano.
+#
+#  Para cambiar la API: edita el contrato -> `./mvnw generate-sources` -> el
+#  compilador señala los delegates que dejan de cumplirlo.
+# =============================================================================
+
+info:
+  title: Home Dashboard API
+  description: |
+    API del panel de casa: lista de la compra compartida, tiempo y agenda familiar.
+
+    ## Acceso
+    Sin autenticación en el MVP: el panel solo se publica dentro de la red de casa
+    y de la tailnet de Tailscale. No lo expongas a internet tal cual.
+
+    ## Fechas
+    Las fechas con hora van en UTC con la Z (`2026-11-20T12:00:00Z`); el cliente
+    las muestra en su zona horaria. Las fechas sin hora (`format: date`) son días
+    del calendario de casa (Europe/Madrid por defecto).
+
+    ## Envoltorio de respuesta
+    Salvo los 204, todas las respuestas van envueltas en `ApiResponse`
+    (`success` / `message` / `data`). Los errores usan `ProblemDetail` (RFC 7807).
+  version: 1.0.0
+
+servers:
+  - url: /
+    description: Mismo origen que el frontend
+
+tags:
+  - name: compra
+    description: Lista de la compra compartida de la casa
+  - name: tiempo
+    description: Tiempo actual y previsión (Open-Meteo)
+  - name: agenda
+    description: Próximos eventos de los calendarios familiares (iCal)
+
+paths:
+  # ===========================================================================
+  #  COMPRA
+  # ===========================================================================
+  /api/compra/articulos:
+    get:
+      tags: [compra]
+      operationId: listArticulosCompra
+      summary: Artículos de la lista, primero los pendientes por categoría
+      responses:
+        '200':
+          description: Artículos de la lista.
+          content:
+            application/json:
+              schema:
+                $ref: './definitions/objects/compra.yml#/ApiResponseArticuloCompraList'
+    post:
+      tags: [compra]
+      operationId: addArticuloCompra
+      summary: Añade un artículo a la lista
+      description: |
+        Si ya hay un artículo pendiente con el mismo nombre (sin distinguir
+        mayúsculas ni tildes), devuelve ese en vez de duplicarlo. Si estaba
+        comprado, vuelve a quedar pendiente con la nueva cantidad.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './definitions/objects/compra.yml#/ArticuloCompraRequest'
+      responses:
+        '200':
+          description: Artículo en la lista.
+          content:
+            application/json:
+              schema:
+                $ref: './definitions/objects/compra.yml#/ApiResponseArticuloCompra'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/compra/articulos/comprados:
+    delete:
+      tags: [compra]
+      operationId: deleteArticulosComprados
+      summary: Quita de la lista todos los artículos ya comprados
+      responses:
+        '204':
+          description: Artículos comprados eliminados.
+
+  /api/compra/articulos/{id}:
+    patch:
+      tags: [compra]
+      operationId: updateArticuloCompra
+      summary: Cambia un artículo (marcarlo como comprado, su cantidad…)
+      description: Solo cambian los campos que se envían. Una cantidad vacía la borra.
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './definitions/objects/compra.yml#/ArticuloCompraUpdate'
+      responses:
+        '200':
+          description: Artículo actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: './definitions/objects/compra.yml#/ApiResponseArticuloCompra'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [compra]
+      operationId: deleteArticuloCompra
+      summary: Quita un artículo de la lista
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Artículo eliminado.
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ===========================================================================
+  #  TIEMPO
+  # ===========================================================================
+  /api/tiempo:
+    get:
+      tags: [tiempo]
+      operationId: getTiempo
+      summary: Tiempo actual, próximas horas y próximos días
+      description: |
+        Datos de Open-Meteo (gratis y sin clave) para la ubicación configurada.
+        Se guardan unos minutos en memoria; si Open-Meteo falla, se devuelve la
+        última respuesta buena con `actualizadoEn` antiguo.
+      responses:
+        '200':
+          description: Tiempo de la ubicación configurada.
+          content:
+            application/json:
+              schema:
+                $ref: './definitions/objects/tiempo.yml#/ApiResponseTiempo'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  # ===========================================================================
+  #  AGENDA
+  # ===========================================================================
+  /api/agenda:
+    get:
+      tags: [agenda]
+      operationId: getAgenda
+      summary: Eventos de hoy y de los próximos días
+      description: |
+        Junta los eventos de los calendarios iCal configurados (por ejemplo, la
+        "dirección secreta en formato iCal" de Google Calendar), con sus
+        repeticiones. Un calendario que falla no tumba a los demás: sale en
+        `calendarios` con `ok: false`.
+      parameters:
+        - name: dias
+          in: query
+          description: Días a mostrar, contando hoy.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 31
+            default: 7
+      responses:
+        '200':
+          description: Eventos ordenados por inicio.
+          content:
+            application/json:
+              schema:
+                $ref: './definitions/objects/agenda.yml#/ApiResponseAgenda'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+components:
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  responses:
+    BadRequest:
+      description: Datos de entrada inválidos.
+      content:
+        application/problem+json:
+          schema:
+            $ref: './definitions/error/problem-detail.yml#/ProblemDetail'
+    NotFound:
+      description: El recurso no existe.
+      content:
+        application/problem+json:
+          schema:
+            $ref: './definitions/error/problem-detail.yml#/ProblemDetail'
+    ServiceUnavailable:
+      description: Un servicio externo no responde y no hay datos guardados.
+      content:
+        application/problem+json:
+          schema:
+            $ref: './definitions/error/problem-detail.yml#/ProblemDetail'

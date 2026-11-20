@@ -1,0 +1,31 @@
+# Errores de la API en formato RFC 7807, tal y como los emite GlobalExceptionHandler.
+
+ProblemDetail:
+  description: Error en formato RFC 7807.
+  type: object
+  properties:
+    type:
+      type: string
+      format: uri
+    title:
+      type: string
+      example: Error de validación
+    status:
+      type: integer
+      format: int32
+      example: 400
+    detail:
+      type: string
+      example: Datos de entrada inválidos
+    instance:
+      type: string
+      format: uri
+    timestamp:
+      type: string
+      format: date-time
+    errors:
+      description: Presente solo en errores de validación.
+      type: array
+      items:
+        type: string
+      example: ['nombre: no debe estar vacío']

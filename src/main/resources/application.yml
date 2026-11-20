@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: home-dashboard
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/home_dashboard}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    hikari:
+      connection-timeout: 8000
+      # Un panel de casa: pocas conexiones bastan y ahorran RAM en el NUC
+      maximum-pool-size: 5
+
+  # El esquema lo crean las migraciones de Flyway (db/migration) al arrancar;
+  # Hibernate solo comprueba que las entidades encajan.
+  flyway:
+    enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  jackson:
+    # Fechas como texto ISO-8601 (2026-11-20T12:00:00Z), no como números
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: ${PORT:8080}
+  # Detrás del proxy del frontend (Vite en desarrollo, nginx en el NUC)
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+panel:
+  # Zona horaria de casa: decide qué es "hoy" en la agenda y en la previsión
+  zona: ${PANEL_ZONA:Europe/Madrid}
+
+  tiempo:
+    # Coordenadas de casa (por defecto, Madrid). Búscalas en https://open-meteo.com/en/docs
+    ubicacion: ${TIEMPO_UBICACION:Madrid}
+    latitud: ${TIEMPO_LATITUD:40.4168}
+    longitud: ${TIEMPO_LONGITUD:-3.7038}
+    url: ${TIEMPO_URL:https://api.open-meteo.com/v1/forecast}
+    # Open-Meteo actualiza cada 15 min: no tiene sentido preguntar más a menudo
+    cache: ${TIEMPO_CACHE:10m}
+
+  agenda:
+    cache: ${AGENDA_CACHE:5m}
+    # Calendarios iCal. En variables de entorno (docker-compose):
+    #   AGENDA_CALENDARIOS_0_NOMBRE=Familia
+    #   AGENDA_CALENDARIOS_0_URL=https://calendar.google.com/calendar/ical/.../basic.ics
+    #   AGENDA_CALENDARIOS_0_COLOR=#FF5A36
+    calendarios: []
+
+springdoc:
+  swagger-ui:
+    url: /swagger-file/home-dashboard-1.0.0.yml
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
