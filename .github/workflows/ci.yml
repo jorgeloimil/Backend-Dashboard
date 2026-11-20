@@ -23,5 +23,7 @@ jobs:
           java-version: 21
           cache: maven
 
+      # Maven ya viene en la imagen del runner: así no se descarga la distribución del wrapper
+      # (Maven Central limita las descargas desde IPs compartidas y respondía 429).
       - name: Compilar y probar
-        run: ./mvnw -B verify
+        run: mvn -B verify
