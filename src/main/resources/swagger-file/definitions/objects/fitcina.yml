@@ -1,0 +1,82 @@
+# Fitcina en el panel: qué toca entrenar hoy. Se calcula con la API de Fitcina
+# (rutinas, sesiones y racha) y se degrada sin romper el panel si Fitcina no responde.
+
+EstadoFitcina:
+  type: string
+  description: |
+    - `OK`: datos recién leídos de Fitcina.
+    - `DESACTUALIZADO`: Fitcina no responde y se sirve la última copia buena (ver `actualizadoEn`).
+    - `NO_DISPONIBLE`: Fitcina no responde y no hay copia; el panel muestra la tarjeta con el aviso.
+    - `SIN_CONFIGURAR`: faltan `FITCINA_EMAIL` / `FITCINA_PASSWORD`.
+  enum: [OK, DESACTUALIZADO, NO_DISPONIBLE, SIN_CONFIGURAR]
+
+EstadoRutinaHoy:
+  type: string
+  enum: [PENDIENTE, EN_CURSO, HECHA]
+
+RutinaHoy:
+  type: object
+  required: [id, nombre, ejercicios, estado]
+  properties:
+    id:
+      type: integer
+      format: int64
+    nombre:
+      type: string
+      example: Empuje
+    emoji:
+      type: string
+      nullable: true
+    intensidad:
+      type: string
+      nullable: true
+      description: BAJA, MEDIA o ALTA, tal como la guarda Fitcina.
+    ejercicios:
+      type: integer
+      format: int32
+      description: Número de ejercicios de la rutina.
+    estado:
+      $ref: './fitcina.yml#/EstadoRutinaHoy'
+
+FitcinaHoy:
+  type: object
+  required: [estado, fecha, rutinas]
+  properties:
+    estado:
+      $ref: './fitcina.yml#/EstadoFitcina'
+    motivo:
+      type: string
+      nullable: true
+      description: Por qué no hay datos frescos, en una frase; vacío si `estado` es `OK`.
+    fecha:
+      type: string
+      format: date
+      description: El "hoy" de casa con el que se calculó.
+    actualizadoEn:
+      type: string
+      format: date-time
+      nullable: true
+      description: Cuándo se leyeron los datos de Fitcina; nulo si nunca se han leído.
+    rutinas:
+      description: Rutinas que tocan hoy según sus días de la semana; vacío en día de descanso o sin datos.
+      type: array
+      items:
+        $ref: './fitcina.yml#/RutinaHoy'
+    rachaDias:
+      type: integer
+      format: int32
+      nullable: true
+      description: Días seguidos entrenando hasta hoy (hoy sin entrenar aún no la rompe).
+    sesionesSemana:
+      type: integer
+      format: int32
+      nullable: true
+      description: Sesiones desde el lunes de esta semana.
+
+ApiResponseFitcinaHoy:
+  allOf:
+    - $ref: './common.yml#/ApiResponseBase'
+    - type: object
+      properties:
+        data:
+          $ref: './fitcina.yml#/FitcinaHoy'

@@ -2,6 +2,7 @@ package com.homedashboard.cucumber;
 
 import com.homedashboard.config.ClockConfig;
 import com.homedashboard.services.external.DescargadorCalendarios;
+import com.homedashboard.services.external.FitcinaClient;
 import com.homedashboard.services.external.OpenMeteoClient;
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,6 +26,9 @@ public class CucumberSpringConfiguration {
 
     @MockitoBean
     private OpenMeteoClient openMeteoClient;
+
+    @MockitoBean
+    private FitcinaClient fitcinaClient;
 
     @MockitoBean
     private DescargadorCalendarios descargadorCalendarios;

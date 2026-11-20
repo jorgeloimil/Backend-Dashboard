@@ -66,6 +66,16 @@ panel:
     #   AGENDA_CALENDARIOS_0_COLOR=#FF5A36
     calendarios: []
 
+  fitcina:
+    # Llamada interna entre contenedores del mismo docker-compose (red por defecto).
+    url: ${FITCINA_URL:http://fitcina-backend:8080}
+    # Cuenta de Fitcina cuya rutina se muestra. Sin ellas la tarjeta sale "sin configurar".
+    email: ${FITCINA_EMAIL:}
+    password: ${FITCINA_PASSWORD:}
+    cache: ${FITCINA_CACHE:2m}
+    # Tras un fallo no se vuelve a llamar a Fitcina hasta pasado este tiempo
+    reintento: ${FITCINA_REINTENTO:1m}
+
 springdoc:
   swagger-ui:
     url: /swagger-file/home-dashboard-1.0.0.yml

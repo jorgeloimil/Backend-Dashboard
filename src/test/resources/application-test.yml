@@ -21,3 +21,8 @@ panel:
       - nombre: Familia
         url: https://calendario.test/familia.ics
         color: '#FF5A36'
+
+  fitcina:
+    url: http://fitcina.test
+    email: jorge@casa.test
+    password: secreto

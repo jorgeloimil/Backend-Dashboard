@@ -41,6 +41,8 @@ tags:
     description: Tiempo actual y previsión (Open-Meteo)
   - name: agenda
     description: Próximos eventos de los calendarios familiares (iCal)
+  - name: fitcina
+    description: Qué toca entrenar hoy según Fitcina
 
 paths:
   # ===========================================================================
@@ -183,6 +185,28 @@ paths:
                 $ref: './definitions/objects/agenda.yml#/ApiResponseAgenda'
         '400':
           $ref: '#/components/responses/BadRequest'
+
+  # ===========================================================================
+  #  FITCINA
+  # ===========================================================================
+  /api/fitcina/hoy:
+    get:
+      tags: [fitcina]
+      operationId: getFitcinaHoy
+      summary: Rutina que toca hoy en Fitcina y su estado
+      description: |
+        Consulta la API de Fitcina (rutinas con sus días de la semana, sesiones
+        del día y racha) con la cuenta configurada en `FITCINA_EMAIL` /
+        `FITCINA_PASSWORD`. **Siempre responde 200**: si Fitcina no está
+        configurada o no responde, lo dice `estado` (y se sirve la última copia
+        buena si la hay) para que el panel pinte la tarjeta sin romperse.
+      responses:
+        '200':
+          description: Lo que toca hoy, o el motivo por el que no se sabe.
+          content:
+            application/json:
+              schema:
+                $ref: './definitions/objects/fitcina.yml#/ApiResponseFitcinaHoy'
 
 components:
   parameters:

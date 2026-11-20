@@ -37,7 +37,8 @@ class TiempoServiceImplTest {
     void preparar() throws IOException {
         PanelProperties properties = new PanelProperties(ZoneId.of("Europe/Madrid"),
                 new PanelProperties.Tiempo("Madrid", 40.4, -3.7, URI.create("http://open-meteo.test"), Duration.ofMinutes(10)),
-                new PanelProperties.Agenda(Duration.ofMinutes(5), List.of()));
+                new PanelProperties.Agenda(Duration.ofMinutes(5), List.of()),
+                new PanelProperties.Fitcina(URI.create("http://fitcina.test"), "", "", Duration.ofMinutes(2), Duration.ofMinutes(1)));
         servicio = new TiempoServiceImpl(openMeteo, properties, reloj);
         JsonNode madrid = new ObjectMapper().readTree(getClass().getResourceAsStream("/open-meteo/madrid.json"));
         when(openMeteo.prevision()).thenReturn(madrid);
